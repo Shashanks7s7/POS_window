@@ -73,20 +73,32 @@ Future getposdata() async{
                     shrinkWrap: true,
                     itemBuilder: (context,index){
                       return Card(
-                        child: ListTile(
-                          title: Text("Sales No. ${posmasterlist[index].pOSSalesMasterID.toString()}",style: titleStyle,),
-                          subtitle: Text( DateFormat('dd/MM/yyyy hh:mm').format(posmasterlist[index].createdDate),style: titleStyle3,),
-                      trailing:Column(
-                        mainAxisAlignment: MainAxisAlignment.spaceAround,
-                        children: [
-                           Text("Net Amount: ${posmasterlist[index].netAmount}",style: titleStyle4,
-                          ),
-                           Text( posmasterlist[index].discountType+" :  "+posmasterlist[index].discount.toString(),style: titleStyle4,
-                          ),
-                          Text("Grand Total: ${posmasterlist[index].grandTotal}",style: titleStyle4,
-                          ),
-                        ],
+                        child: SizedBox(
+                    
+                          child: ListTile(
+                            title: Text("Sales No. ${posmasterlist[index].pOSSalesMasterID.toString()}",style: titleStyle,),
+                            subtitle: Text( DateFormat('dd/MM/yyyy hh:mm').format(posmasterlist[index].createdDate),style: titleStyle3,),
+                      trailing:FittedBox(
+                        child: Column(
+                          
+                            mainAxisSize: MainAxisSize.min,
+                            children: [
+                               FittedBox(
+                                 child: Text("Net Amount: ${posmasterlist[index].netAmount}",style: titleStyle4,
+                                                           ),
+                               ),
+                               FittedBox(
+                                 child: Text( posmasterlist[index].discountType+" :  "+posmasterlist[index].discount.toString(),style: titleStyle4,
+                                                           ),
+                               ),
+                              FittedBox(
+                                child: Text("Grand Total: ${posmasterlist[index].grandTotal}",style: titleStyle4,
+                                ),
+                              ),
+                            ],
+                        ),
                       ),
+                          ),
                         ),
                       );
                     }),

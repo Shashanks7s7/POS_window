@@ -61,7 +61,7 @@ class _SidePosScreenState extends State<SidePosScreen>
   Map loggedinuser = {};
   
   final GlobalKey<FormState> key = GlobalKey();
-  String _buttonselectedddiscount = 'FLAT';
+ 
   static const discountitems = ['FLAT', 'IN %'];
   final List<DropdownMenuItem<String>> _dropdowndiscountitems = discountitems
       .map((String value) => DropdownMenuItem<String>(
@@ -70,13 +70,13 @@ class _SidePosScreenState extends State<SidePosScreen>
           ))
       .toList();
 
-  final mycontroller = TextEditingController();
 
   @override
   Widget build(BuildContext context) {
     var orientation = MediaQuery.of(context).orientation;
     bool ispotriat = orientation == Orientation.portrait;
     var qrdata = Provider.of<Order>(context).qrdata;
+      var cart = Provider.of<Cart>(context,listen: true);
     return SingleChildScrollView(
       reverse: true,
       child: Padding(
@@ -242,12 +242,13 @@ class _SidePosScreenState extends State<SidePosScreen>
                     children: [
                       SizedBox(
                         child: DropdownButton<String>(
-                          value: _buttonselectedddiscount,
+                          value: cart.buttonselectedddiscount,
                           onChanged: (String? newvalue) {
                             if (newvalue != null) {
                               setState(() {
-                                _buttonselectedddiscount = newvalue;
-                                mycontroller.clear();
+                                cart.buttonselectedddiscount = newvalue;
+                                cart.discountcontroller.clear();
+                                cart.disData=0;
                                
                               });
                             }
@@ -269,23 +270,28 @@ class _SidePosScreenState extends State<SidePosScreen>
                                     decoration: const InputDecoration(
                                       border: OutlineInputBorder(),
                                     ),
-                                    controller: mycontroller,
+                                    controller: cart.discountcontroller,
                                     onChanged: (value) {
-                                     
-                                       if (_buttonselectedddiscount == 'FLAT') {
+                                     if(value==""){
+                                       carrt.disData = 0;
+                                        carrt.discount = "0";
+                                        print("dfjkljdlkfjlkdsfjlkdfjldskfjlskd");
+                                     }
+                                     else  if (cart.buttonselectedddiscount == 'FLAT') {
                                         print("djflkjlk"+value);
                                         carrt.disData = double.parse(value);
                                         carrt.discount = value;
+                                     
                                         carrt.netamount =
                                             (carrt.totalamount - carrt.disData);
                                       }
-                                   if (_buttonselectedddiscount == "IN %") {
+                                  else if (cart.buttonselectedddiscount == "IN %") {
                                         carrt.disData = (carrt.totalamount *
                                                 double.parse(value)) /
                                             100;
                                         carrt.netamount =
                                             (carrt.totalamount - carrt.disData);
-
+   print(carrt.disData.toString()+" df "+carrt.totalamount.toString());
                                         carrt.discount = "${value}%";
                                       }
                                      
@@ -301,9 +307,9 @@ class _SidePosScreenState extends State<SidePosScreen>
                 builder: (_, carrt, _1) => PaymentScreen(
                     loggedinuser['UserId'].toString(),
                     carrt.totalamount,
-                    _buttonselectedddiscount,
-                    carrt.disData,
-                    mycontroller))
+                    cart.buttonselectedddiscount,
+                    
+                   ))
           ],
         )),
       ),
@@ -606,12 +612,7 @@ class _SidePosScreenState extends State<SidePosScreen>
   Widget customerfield(String uid) {
     final GlobalKey<FormState> key = GlobalKey();
     final order = Provider.of<Order>(context, listen: false);
-    Map<String, String> cusData = {
-      'fullname': '',
-      'address': '',
-      'email': '',
-      'phoneno': ''
-    };
+ Map cusData= Provider.of<Cart>(context, listen: false).cusData;
 
     onsave() {
       if (!key.currentState!.validate()) {

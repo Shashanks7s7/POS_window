@@ -44,7 +44,14 @@ TextEditingController remarkscontroller=TextEditingController();
 
     return sum;
   }
-
+   Map<String, String> cusData = {
+      'fullname': '',
+      'address': '',
+      'email': '',
+      'phoneno': ''
+    };
+      final discountcontroller = TextEditingController();
+ String buttonselectedddiscount = 'FLAT';
   double netamount = 0;
   String discount = "0";
   double disData=0.0;

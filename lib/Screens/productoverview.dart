@@ -356,11 +356,12 @@ setState(() {
   }
 
   Widget buildFoodFilter() {
-    return SizedBox(
+    return Container(
       height: 51.h,
-      //color: Colors.red,
+    
       child: ListView(
         scrollDirection: Axis.horizontal,
+        shrinkWrap: true,
         physics: const BouncingScrollPhysics(),
         children: List.generate(procat.length, (index) {
           return Padding(

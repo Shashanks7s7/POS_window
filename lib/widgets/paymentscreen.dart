@@ -10,19 +10,21 @@ import 'package:possystem/provider/payadd.dart';
 import 'package:possystem/provider/cart.dart';
 import 'package:possystem/provider/order.dart';
 import 'package:provider/provider.dart';
+import 'package:pdf/widgets.dart' as pw;
+import 'package:printing/printing.dart';
 
+import 'package:pdf/pdf.dart';
+
+import 'buildprintabledata.dart';
 
 // ignore: must_be_immutable
 class PaymentScreen extends StatefulWidget {
   final String uid;
   final double amount;
   final String discounttype;
-  double discount;
 
-  TextEditingController discountcontroller;
-
-  PaymentScreen(this.uid,
-      this.amount, this.discounttype, this.discount, this.discountcontroller, {Key? key}) : super(key: key);
+  PaymentScreen(this.uid, this.amount, this.discounttype, {Key? key})
+      : super(key: key);
 
   @override
   _PaymentScreenState createState() => _PaymentScreenState();
@@ -32,36 +34,32 @@ class _PaymentScreenState extends State<PaymentScreen> {
   final paycontroller = TextEditingController();
 
   double paymentprice = 0.0;
- 
+
   List modea = [];
-  String testpay='';
+  String testpay = '';
   late String _buttonselecteddval;
- 
 
   @override
   void initState() {
-   
     super.initState();
-    _buttonselecteddval=Provider.of<DbInitializer>(context,listen: false).paymentnames[0];
-   
+    _buttonselecteddval =
+        Provider.of<DbInitializer>(context, listen: false).paymentnames[0];
   }
-
-
 
   @override
   Widget build(BuildContext context) {
-    print(widget.discount);
-    double grand=(widget.amount - widget.discount) * 0.15 +
-            (widget.amount - widget.discount);
+    var cart = Provider.of<Cart>(context);
+    print(cart.disData);
+    double grand =
+        (widget.amount - cart.disData) * 0.15 + (widget.amount - cart.disData);
     double gt = double.parse(grand.toStringAsFixed(2));
     var p = Provider.of<PayA>(context);
     setState(() {
       p.total = gt;
-      
     });
-     var qrdata=Provider.of<Order>(context).qrdata;
-  var orientation=MediaQuery.of(context).orientation;
-  bool ispotriat=orientation==Orientation.portrait;
+    var qrdata = Provider.of<Order>(context).qrdata;
+    var orientation = MediaQuery.of(context).orientation;
+    bool ispotriat = orientation == Orientation.portrait;
     return Container(
         margin: EdgeInsets.only(top: 10.h),
         width: 420.w,
@@ -69,7 +67,9 @@ class _PaymentScreenState extends State<PaymentScreen> {
         child: Column(children: [
           Row(
             mainAxisSize: MainAxisSize.max,
-            mainAxisAlignment: ispotriat? MainAxisAlignment.spaceBetween:MainAxisAlignment.spaceAround,
+            mainAxisAlignment: ispotriat
+                ? MainAxisAlignment.spaceBetween
+                : MainAxisAlignment.spaceAround,
             children: [
               Text(
                 " Payment Mode",
@@ -85,9 +85,9 @@ class _PaymentScreenState extends State<PaymentScreen> {
           ),
           Consumer<PayA>(
             builder: (_, payadd, _1) => SizedBox(
-              height:ispotriat? 78.h:null,
+              height: ispotriat ? 78.h : null,
               child: ListView.builder(
-                shrinkWrap: true,
+                  shrinkWrap: true,
                   itemCount: payadd.items.length,
                   itemBuilder: (context, index) {
                     return Row(
@@ -105,10 +105,11 @@ class _PaymentScreenState extends State<PaymentScreen> {
                                 .toStringAsFixed(2),
                             style: subtitleStyle),
                         IconButton(
-                            onPressed: () {payadd.removeItem(
-                                payadd.items.values.toList()[index].title);
-                                paycontroller.text=payadd.ramain;
-                                },
+                            onPressed: () {
+                              payadd.removeItem(
+                                  payadd.items.values.toList()[index].title);
+                              paycontroller.text = payadd.ramain;
+                            },
                             icon: const Icon(Icons.delete))
                       ],
                     );
@@ -116,135 +117,135 @@ class _PaymentScreenState extends State<PaymentScreen> {
             ),
           ),
           Consumer<PayA>(
-            builder: (_, payadd, _1) =>
-              
-               Row(
-              mainAxisAlignment: MainAxisAlignment.spaceAround,
-              mainAxisSize: ispotriat? MainAxisSize.min:MainAxisSize.max,
-              children: [
-                FittedBox(
-                  child: DropdownButton<String>(
-                    value: _buttonselecteddval,
-                    hint: const Text("Select"),
-                    onChanged: (newvalue) {
-                      setState(() {
-                        _buttonselecteddval = newvalue.toString();
-                      });
-                    },
-                    items: Provider.of<DbInitializer>(context, listen: false)
-                        .paymentnames
-                        .map((String value) => DropdownMenuItem(
-                              child: Text(value),
-                              value: value,
-                            ))
-                        .toList(),
-                  ),
-                ),
-                Container(
-                  margin: EdgeInsets.only(top: 5.h),
-                  height: 34.h,
-                  width: ispotriat? 90.w:105.w,
-                  padding: EdgeInsets.symmetric(vertical: 5.h),
-                  child: TextFormField(
-                      key: Key(payadd.ramain.toString()),
-                    initialValue: payadd.ramain,
-                      keyboardType: TextInputType.number,
-                      decoration: const InputDecoration(
-                        border: OutlineInputBorder(),
+              builder: (_, payadd, _1) => Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceAround,
+                    mainAxisSize:
+                        ispotriat ? MainAxisSize.min : MainAxisSize.max,
+                    children: [
+                      FittedBox(
+                        child: DropdownButton<String>(
+                          value: _buttonselecteddval,
+                          hint: const Text("Select"),
+                          onChanged: (newvalue) {
+                            setState(() {
+                              _buttonselecteddval = newvalue.toString();
+                            });
+                          },
+                          items:
+                              Provider.of<DbInitializer>(context, listen: false)
+                                  .paymentnames
+                                  .map((String value) => DropdownMenuItem(
+                                        child: Text(value),
+                                        value: value,
+                                      ))
+                                  .toList(),
+                        ),
                       ),
-                    
-           
-                      onChanged: (valu){
-                        paycontroller.text=valu;
-                        testpay=valu;
-                      
-                      },
-                      
-                      onTap: () {
-                        paycontroller.selection = TextSelection(
-                            baseOffset: paycontroller.text.length,
-                            extentOffset: paycontroller.text.length);
-                      }),
-                ),
-                FittedBox(
-                  child: IconButton(
-                      onPressed: () async {
-                        PaymentMode mode = await MyDatabase.instance
-                            .readpaymentmode(_buttonselecteddval);
-                         if (paycontroller.text.isEmpty) {
-                          paycontroller.text = payadd.ramain;
-                        }
-                         if (paycontroller.text!=testpay) {
-                          paycontroller.text = payadd.ramain;
-                        }
-                
-                        if (double.parse(paycontroller.text) >
-                            double.parse(gt.toStringAsFixed(2))) {
-                          ScaffoldMessenger.of(context).showSnackBar(SnackBar(
-                            content: const Text(
-                                "Payment amount is grater than grand total. Please check !!!"),
-                            duration: const Duration(milliseconds: 800),
-                            action: SnackBarAction(
-                                label: "Dismiss",
-                                onPressed: () {
+                      Container(
+                        margin: EdgeInsets.only(top: 5.h),
+                        height: 34.h,
+                        width: ispotriat ? 90.w : 105.w,
+                        padding: EdgeInsets.symmetric(vertical: 5.h),
+                        child: TextFormField(
+                            key: Key(payadd.ramain.toString()),
+                            initialValue: payadd.ramain,
+                            keyboardType: TextInputType.number,
+                            decoration: const InputDecoration(
+                              border: OutlineInputBorder(),
+                            ),
+                            onChanged: (valu) {
+                              paycontroller.text = valu;
+                              testpay = valu;
+                            },
+                            onTap: () {
+                              paycontroller.selection = TextSelection(
+                                  baseOffset: paycontroller.text.length,
+                                  extentOffset: paycontroller.text.length);
+                            }),
+                      ),
+                      FittedBox(
+                        child: IconButton(
+                            onPressed: () async {
+                              PaymentMode mode = await MyDatabase.instance
+                                  .readpaymentmode(_buttonselecteddval);
+                              if (paycontroller.text.isEmpty) {
+                                paycontroller.text = payadd.ramain;
+                              }
+                              if (paycontroller.text != testpay) {
+                                paycontroller.text = payadd.ramain;
+                              }
+
+                              if (double.parse(paycontroller.text) >
+                                  double.parse(gt.toStringAsFixed(2))) {
+                                ScaffoldMessenger.of(context)
+                                    .showSnackBar(SnackBar(
+                                  content: const Text(
+                                      "Payment amount is grater than grand total. Please check !!!"),
+                                  duration: const Duration(milliseconds: 800),
+                                  action: SnackBarAction(
+                                      label: "Dismiss",
+                                      onPressed: () {
+                                        ScaffoldMessenger.of(context)
+                                            .hideCurrentSnackBar();
+                                      }),
+                                ));
+                                return;
+                              } else if (double.parse(paycontroller.text) >
+                                  double.parse(payadd.ramain)) {
+                                ScaffoldMessenger.of(context)
+                                    .showSnackBar(SnackBar(
+                                  content: const Text(
+                                      "Payment amount is grater than grand total. Please check !!!"),
+                                  duration: const Duration(milliseconds: 800),
+                                  action: SnackBarAction(
+                                      label: "Dismiss",
+                                      onPressed: () {
+                                        ScaffoldMessenger.of(context)
+                                            .hideCurrentSnackBar();
+                                      }),
+                                ));
+                                return;
+                              } else if (double.parse(paycontroller.text) <=
+                                  0) {
+                                ScaffoldMessenger.of(context)
+                                    .showSnackBar(SnackBar(
+                                  content: const Text("Please enter amount"),
+                                  duration: const Duration(milliseconds: 800),
+                                  action: SnackBarAction(
+                                      label: "Dismiss",
+                                      onPressed: () {
+                                        ScaffoldMessenger.of(context)
+                                            .hideCurrentSnackBar();
+                                      }),
+                                ));
+
+                                return;
+                              } else {
+                                bool? b = payadd.additems(
+                                    mode.paymentModeID!,
+                                    _buttonselecteddval,
+                                    double.parse(paycontroller.text));
+                                paycontroller.text = payadd.ramain;
+                                if (b == false) {
                                   ScaffoldMessenger.of(context)
-                                      .hideCurrentSnackBar();
-                                }),
-                          ));
-                          return;
-                        } else if (double.parse(paycontroller.text) >
-                            double.parse(payadd.ramain)) {
-                          ScaffoldMessenger.of(context).showSnackBar(SnackBar(
-                            content: const Text(
-                                "Payment amount is grater than grand total. Please check !!!"),
-                            duration: const Duration(milliseconds: 800),
-                            action: SnackBarAction(
-                                label: "Dismiss",
-                                onPressed: () {
-                                  ScaffoldMessenger.of(context)
-                                      .hideCurrentSnackBar();
-                                }),
-                          ));
-                          return;
-                        } else if (double.parse(paycontroller.text) <= 0) {
-                          ScaffoldMessenger.of(context).showSnackBar(SnackBar(
-                            content: const Text("Please enter amount"),
-                            duration: const Duration(milliseconds: 800),
-                            action: SnackBarAction(
-                                label: "Dismiss",
-                                onPressed: () {
-                                  ScaffoldMessenger.of(context)
-                                      .hideCurrentSnackBar();
-                                }),
-                          ));
-                
-                          return;
-                        } else {
-                        
-                          bool? b = payadd.additems(
-                              mode.paymentModeID!,
-                              _buttonselecteddval,
-                              double.parse(paycontroller.text));
-                         paycontroller.text = payadd.ramain;
-                          if (b == false) {
-                            ScaffoldMessenger.of(context).showSnackBar(SnackBar(
-                              content: const Text("Please select another method"),
-                              duration: const Duration(milliseconds: 800),
-                              action: SnackBarAction(
-                                  label: "Dismiss",
-                                  onPressed: () {
-                                    ScaffoldMessenger.of(context)
-                                        .hideCurrentSnackBar();
-                                  }),
-                            ));
-                          }
-                        }
-                      },
-                      icon: const Icon(Icons.add)),
-                )
-              ],
-            )
-          ),
+                                      .showSnackBar(SnackBar(
+                                    content: const Text(
+                                        "Please select another method"),
+                                    duration: const Duration(milliseconds: 800),
+                                    action: SnackBarAction(
+                                        label: "Dismiss",
+                                        onPressed: () {
+                                          ScaffoldMessenger.of(context)
+                                              .hideCurrentSnackBar();
+                                        }),
+                                  ));
+                                }
+                              }
+                            },
+                            icon: const Icon(Icons.add)),
+                      )
+                    ],
+                  )),
           const Divider(),
           Row(
             mainAxisSize: MainAxisSize.max,
@@ -274,13 +275,15 @@ class _PaymentScreenState extends State<PaymentScreen> {
           const Divider(),
           Row(
             mainAxisSize: MainAxisSize.max,
-            mainAxisAlignment:ispotriat? MainAxisAlignment.spaceEvenly:MainAxisAlignment.spaceAround,
+            mainAxisAlignment: ispotriat
+                ? MainAxisAlignment.spaceEvenly
+                : MainAxisAlignment.spaceAround,
             children: [
               SizedBox(
                 width: 70.w,
                 child: SizedBox(
                   child: Text(
-                    (widget.amount - widget.discount).toStringAsFixed(2),
+                    (widget.amount - cart.disData).toStringAsFixed(2),
                     style: titleStyle1,
                   ),
                 ),
@@ -297,20 +300,21 @@ class _PaymentScreenState extends State<PaymentScreen> {
                   ))
             ],
           ),
-Consumer<Cart>(
-              builder: (_, cartt, _1) =>Container(
-            margin: EdgeInsets.only(top: 4.h, right: 5.w),
-            height: 32.h,
-            width:ispotriat? 200.w:300.w,
-            padding: EdgeInsets.all(2.h),
-            child: TextField(
-              keyboardType: TextInputType.text,
-              decoration: const InputDecoration(
-                border: OutlineInputBorder(),
+          Consumer<Cart>(
+            builder: (_, cartt, _1) => Container(
+              margin: EdgeInsets.only(top: 4.h, right: 5.w),
+              height: 32.h,
+              width: ispotriat ? 200.w : 300.w,
+              padding: EdgeInsets.all(2.h),
+              child: TextField(
+                keyboardType: TextInputType.text,
+                decoration: const InputDecoration(
+                  border: OutlineInputBorder(),
+                ),
+                controller: cartt.remarkscontroller,
               ),
-              controller: cartt.remarkscontroller,
             ),
-          ),),
+          ),
           SizedBox(
             height: 10.h,
           ),
@@ -322,13 +326,14 @@ Consumer<Cart>(
                       FittedBox(
                         child: ElevatedButton(
                           onPressed: () {
-                     final order=       Provider.of<Order>(context,
-                                                          listen: false);
+                            final order =
+                                Provider.of<Order>(context, listen: false);
                             if (cartt.items.isEmpty) {
                               ScaffoldMessenger.of(context).clearSnackBars();
-                              ScaffoldMessenger.of(context).showSnackBar(SnackBar(
-                                content:
-                                    const Text("Atleast one product has to be added."),
+                              ScaffoldMessenger.of(context)
+                                  .showSnackBar(SnackBar(
+                                content: const Text(
+                                    "Atleast one product has to be added."),
                                 duration: const Duration(milliseconds: 800),
                                 action: SnackBarAction(
                                     label: "Dismiss",
@@ -339,7 +344,8 @@ Consumer<Cart>(
                               ));
                             } else if (p.items.isEmpty) {
                               ScaffoldMessenger.of(context).clearSnackBars();
-                              ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+                              ScaffoldMessenger.of(context)
+                                  .showSnackBar(SnackBar(
                                 content: const Text(
                                     "At least one payment mode has to be added"),
                                 duration: const Duration(milliseconds: 800),
@@ -352,7 +358,8 @@ Consumer<Cart>(
                               ));
                             } else if (double.parse(p.ramain) != 0.00) {
                               ScaffoldMessenger.of(context).clearSnackBars();
-                              ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+                              ScaffoldMessenger.of(context)
+                                  .showSnackBar(SnackBar(
                                 content: const Text(
                                     "Payment is not equal to the grandtotal"),
                                 duration: const Duration(milliseconds: 800),
@@ -363,11 +370,12 @@ Consumer<Cart>(
                                           .hideCurrentSnackBar();
                                     }),
                               ));
-                            }else if (qrdata==null) {
+                            } else if (qrdata == null) {
                               ScaffoldMessenger.of(context).clearSnackBars();
-                              ScaffoldMessenger.of(context).showSnackBar(SnackBar(
-                                content: const Text(
-                                    "Scan to add Customer Type"),
+                              ScaffoldMessenger.of(context)
+                                  .showSnackBar(SnackBar(
+                                content:
+                                    const Text("Scan to add Customer Type"),
                                 duration: const Duration(milliseconds: 800),
                                 action: SnackBarAction(
                                     label: "Dismiss",
@@ -376,10 +384,7 @@ Consumer<Cart>(
                                           .hideCurrentSnackBar();
                                     }),
                               ));
-                            }
-                            
-                            
-                             else {
+                            } else {
                               showDialog(
                                   context: context,
                                   builder: (_) => AlertDialog(
@@ -394,45 +399,57 @@ Consumer<Cart>(
                                             ElevatedButton(
                                                 child: const Text("OK"),
                                                 onPressed: () {
-                                                  if(order.pOSSalesMasterID==null){
-                                                      order.addtodb(
+                                                  if (order.pOSSalesMasterID ==
+                                                      null) {
+                                                    order.addtodb(
                                                         qrdata.cusid,
-                                                          cartt
-                                                              .items.values
-                                                              .toList(),
-                                                          widget.amount,
-                                                          gt,
-                                                          15,
-                                                          cartt.remarkscontroller.text,
-                                                         widget.uid,
-                                                          widget.discounttype,
-                                                          widget.discount,
-                                                          false,
-                                                          null,
-                                                          null,
-                                                          null,
-                                                          p.items.values.toList(),
-                                                          1,
-                                                          3);}
-                                                          else{
-                                               order.edittodb(cartt.remarkscontroller.text,  cartt
-                                                              .items.values
-                                                              .toList(),);
-                                               
-                                               }       
+                                                        cartt.items.values
+                                                            .toList(),
+                                                        widget.amount,
+                                                        gt,
+                                                        15,
+                                                        cartt.remarkscontroller
+                                                            .text,
+                                                        widget.uid,
+                                                        widget.discounttype,
+                                                        cart.disData,
+                                                        false,
+                                                        null,
+                                                        null,
+                                                        null,
+                                                        p.items.values.toList(),
+                                                        1,
+                                                        3);
+                                                  } else {
+                                                    order.edittodb(
+                                                      cartt.remarkscontroller
+                                                          .text,
+                                                      cartt.items.values
+                                                          .toList(),
+                                                      widget.amount,
+                                                      gt,
+                                                      widget.discounttype,
+                                                      cart.disData,
+                                                    );
+                                                  }
                                                   Navigator.of(context).pop();
                                                   Navigator.of(context)
                                                       .pushNamed('draftscreen');
-                                                  print( Provider.of<PayA>(context,listen: false).total);
+                                                  print(Provider.of<PayA>(
+                                                          context,
+                                                          listen: false)
+                                                      .total);
                                                   cartt.clear();
-                                                  cartt.discount='0';
-                                                  cartt.disData=0.0;
+                                                  cart.disData = 0;
+                                                  cartt.disData = 0.0;
                                                   Provider.of<PayA>(context,
                                                           listen: false)
                                                       .clear();
-                                                        
-                                                  cartt.remarkscontroller.clear();
-                                                   widget.discountcontroller.clear();
+
+                                                  cartt.remarkscontroller
+                                                      .clear();
+                                                  cartt.discountcontroller
+                                                      .clear();
                                                   paycontroller.clear();
                                                 })
                                           ]));
@@ -453,9 +470,10 @@ Consumer<Cart>(
                           onPressed: () {
                             if (cartt.items.isEmpty) {
                               ScaffoldMessenger.of(context).clearSnackBars();
-                              ScaffoldMessenger.of(context).showSnackBar(SnackBar(
-                                content:
-                                    const Text("Atleast one product has to be added."),
+                              ScaffoldMessenger.of(context)
+                                  .showSnackBar(SnackBar(
+                                content: const Text(
+                                    "Atleast one product has to be added."),
                                 duration: const Duration(milliseconds: 800),
                                 action: SnackBarAction(
                                     label: "Dismiss",
@@ -466,7 +484,8 @@ Consumer<Cart>(
                               ));
                             } else if (p.items.isEmpty) {
                               ScaffoldMessenger.of(context).clearSnackBars();
-                              ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+                              ScaffoldMessenger.of(context)
+                                  .showSnackBar(SnackBar(
                                 content: const Text(
                                     "At least one payment mode has to be added"),
                                 duration: const Duration(milliseconds: 800),
@@ -479,7 +498,8 @@ Consumer<Cart>(
                               ));
                             } else if (double.parse(p.ramain) != 0.00) {
                               ScaffoldMessenger.of(context).clearSnackBars();
-                              ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+                              ScaffoldMessenger.of(context)
+                                  .showSnackBar(SnackBar(
                                 content: const Text(
                                     "Payment is not equal to the grandtotal"),
                                 duration: const Duration(milliseconds: 800),
@@ -490,11 +510,12 @@ Consumer<Cart>(
                                           .hideCurrentSnackBar();
                                     }),
                               ));
-                            } else if (qrdata==null) {
+                            } else if (qrdata == null) {
                               ScaffoldMessenger.of(context).clearSnackBars();
-                              ScaffoldMessenger.of(context).showSnackBar(SnackBar(
-                                content: const Text(
-                                    "Scan to add Customer Type"),
+                              ScaffoldMessenger.of(context)
+                                  .showSnackBar(SnackBar(
+                                content:
+                                    const Text("Scan to add Customer Type"),
                                 duration: const Duration(milliseconds: 800),
                                 action: SnackBarAction(
                                     label: "Dismiss",
@@ -503,14 +524,7 @@ Consumer<Cart>(
                                           .hideCurrentSnackBar();
                                     }),
                               ));
-                            } 
-                            
-                            
-                            
-                            
-                            
-                            
-                            else {
+                            } else {
                               showDialog(
                                   context: context,
                                   builder: (_) => AlertDialog(
@@ -524,21 +538,21 @@ Consumer<Cart>(
                                               child: const Text("Cancel")),
                                           ElevatedButton(
                                               child: const Text("OK"),
-                                              onPressed: () {
+                                              onPressed: () async {
                                                 Provider.of<Order>(context,
                                                         listen: false)
                                                     .addtodb(
-                                                      qrdata.cusid,
-                                                        cartt
-                                                            .items.values
+                                                        qrdata.cusid,
+                                                        cartt.items.values
                                                             .toList(),
                                                         widget.amount,
                                                         gt,
                                                         15,
-                                                        cartt.remarkscontroller.text,
-                                                       widget.uid,
+                                                        cartt.remarkscontroller
+                                                            .text,
+                                                        widget.uid,
                                                         widget.discounttype,
-                                                        widget.discount,
+                                                        cart.disData,
                                                         false,
                                                         null,
                                                         null,
@@ -546,19 +560,21 @@ Consumer<Cart>(
                                                         p.items.values.toList(),
                                                         1,
                                                         1);
+                                                await printfunction();
                                                 cartt.clear();
                                                 Provider.of<PayA>(context,
                                                         listen: false)
                                                     .clear();
-                                                    cartt.discount='0.0';
-                                                    cartt.disData=0.0;
+                                                cart.disData = 0;
+                                                cartt.disData = 0.0;
                                                 cartt.remarkscontroller.clear();
-                                               
-                                               widget.discountcontroller.text="0";
-                                              
+
+                                                cartt.discountcontroller.text =
+                                                    "0";
+
                                                 paycontroller.clear();
                                                 Navigator.of(context).pop();
-                     
+
                                                 ScaffoldMessenger.of(context)
                                                     .showSnackBar(SnackBar(
                                                   content: const Text(
@@ -601,8 +617,28 @@ Consumer<Cart>(
       content: const Text("Are you sure to order this sales?"),
       actions: [
         ElevatedButton(
-            onPressed: () => Navigator.of(context).pop(), child: const Text("Cancel"))
+            onPressed: () => Navigator.of(context).pop(),
+            child: const Text("Cancel"))
       ],
     );
+  }
+
+  printfunction() async {
+    final cartitems = Provider.of<Cart>(context, listen: false).items;
+    final cart = Provider.of<Cart>(context, listen: false);
+    final payment = Provider.of<PayA>(context, listen: false);
+    print(Provider.of<Cart>(context, listen: false).cusData);
+    final image = await imageFromAssetBundle(
+      "assets/images/aem.jpg",
+    );
+    final doc = pw.Document();
+    doc.addPage(pw.Page(
+        pageFormat: PdfPageFormat.a4,
+        build: (pw.Context context) {
+          return buildPrintableData(
+              image, cartitems.values.toList(), cart, payment);
+        }));
+    await Printing.layoutPdf(
+        onLayout: (PdfPageFormat format) async => doc.save());
   }
 }

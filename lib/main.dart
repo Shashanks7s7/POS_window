@@ -1,4 +1,5 @@
 import 'dart:io';
+import 'dart:ui';
 
 import 'package:flutter/material.dart';
 import 'package:possystem/Screens/draftscreen.dart';
@@ -25,7 +26,15 @@ void main() {
   HttpOverrides.global = MyHttpOverrides();
   runApp(const MyApp());
 }
-
+class MyCustomScrollBehavior extends MaterialScrollBehavior {
+  // Override behavior methods like buildOverscrollIndicator and buildScrollbar
+  @override
+  Set<PointerDeviceKind> get dragDevices => {
+        PointerDeviceKind.touch,
+        PointerDeviceKind.mouse,
+        // etc.
+      };
+}
 class MyApp extends StatelessWidget {
   const MyApp({Key? key}) : super(key: key);
   @override
@@ -74,6 +83,7 @@ class MyApp extends StatelessWidget {
       child: Consumer<Auth>(builder: (context, auth, _) {
         return  MaterialApp(
             title: 'ALSMARTAEM',
+             scrollBehavior: MyCustomScrollBehavior(),
             theme: ThemeData(
                
                 textTheme: const TextTheme(
@@ -90,7 +100,7 @@ class MyApp extends StatelessWidget {
                             ? SplashScreen()
                             : const AuthScreen()),
             routes: {
-              'profile': (context) =>const PrintableScreen(),  //const Profile(),
+              'profile': (context) =>const Profile(),  //const Profile(),
               'sync': (context) => const DataApiUpdate(),
               'draftscreen': (context) => const DraftScreen(),
               'history':(context)=>const History(),

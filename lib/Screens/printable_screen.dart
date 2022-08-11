@@ -8,6 +8,7 @@ import 'package:printing/printing.dart';
 import 'package:pdf/pdf.dart';
 import 'package:provider/provider.dart';
 import '../provider/cart.dart';
+
 class PrintableScreen extends StatefulWidget {
   const PrintableScreen({Key? key}) : super(key: key);
 
@@ -18,9 +19,9 @@ class PrintableScreen extends StatefulWidget {
 class _PrintableScreenState extends State<PrintableScreen> {
   @override
   Widget build(BuildContext contextt) {
-  final cartitems= Provider.of<Cart>(context).items;
-final cart=Provider.of<Cart>(context);
-final payment=Provider.of<PayA>(context);
+    final cartitems = Provider.of<Cart>(context).items;
+    final cart = Provider.of<Cart>(context);
+    final payment = Provider.of<PayA>(context);
     return Scaffold(
       appBar: AppBar(
         title: Text("Print"),
@@ -30,20 +31,22 @@ final payment=Provider.of<PayA>(context);
         child: Column(
           children: [
             Text("Hello everyone"),
-            ElevatedButton(onPressed: ()async{
-                final image = await imageFromAssetBundle(
-      "assets/images/aem.jpg",
-    );
-              final doc = pw.Document();
-              doc.addPage(pw.Page(
-                pageFormat: PdfPageFormat.roll80,
-                build: (pw.Context context){
-                  return buildPrintableData(image,cartitems.values.toList(),cart,payment);
-                }
-              )) ;
-               await Printing.layoutPdf(
-        onLayout: (PdfPageFormat format) async => doc.save());
-            }, child: Text("Print"))
+            ElevatedButton(
+                onPressed: () async {
+                  final image = await imageFromAssetBundle(
+                    "assets/images/aem.jpg",
+                  );
+                  final doc = pw.Document();
+                  doc.addPage(pw.Page(
+                      pageFormat: PdfPageFormat.roll80,
+                      build: (pw.Context context) {
+                        return buildPrintableData(
+                            image, cartitems.values.toList(), cart, payment);
+                      }));
+                  await Printing.layoutPdf(
+                      onLayout: (PdfPageFormat format) async => doc.save());
+                },
+                child: Text("Print"))
           ],
         ),
       ),

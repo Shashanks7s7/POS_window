@@ -118,14 +118,17 @@ Qr? get qrdata {
     notifyListeners();
   }
   addcustomertoDatabase(String? fullname,String? address,String? email,String? phoneno,String createdBy)async{
-    final cusdata=Customer(fullName: fullname, address: address, status: 1, email: email, phoneNo: phoneno, createdBy: createdBy, createdDate: DateTime.now(), modifiedBy: createdBy ,modifiedDate:DateTime.now());
+    final cusdata=Customer(customerID: null, fullName: fullname, address: address, status: 1, email: email, phoneNo: phoneno, createdBy: createdBy, createdDate: DateTime.now(), modifiedBy: createdBy ,modifiedDate:DateTime.now());
     await MyDatabase.instance.createcustomer(cusdata);
 
   }
-  edittodb(String remarks,  List<CartItem> cartItem,)async{
+  edittodb(String remarks,  List<CartItem> cartItem,double netamount,
+      double grandtotal, String discounttype,
+      double discount,)async{
     if(pOSSalesMasterID!=null){
+      print("database ma update vako discount"+discount.toString());
       await MyDatabase.instance.deleteposSalesdetailperid(pOSSalesMasterID);
-     await MyDatabase.instance.updatepossalesmater(pOSSalesMasterID!,remarks );
+     await MyDatabase.instance.updatepossalesmater(pOSSalesMasterID!,remarks,netamount,grandtotal, discounttype,discount );
  for (int i = 0; i < cartItem.length; i++) {
       
       List adonidss = [];

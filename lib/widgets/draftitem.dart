@@ -3,6 +3,7 @@ import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:intl/intl.dart';
 import 'package:possystem/constants/fonts.dart';
 import 'package:possystem/db/mydatabase.dart';
+import 'package:possystem/models/customer.dart';
 import 'package:possystem/models/pos_sales_detail.dart';
 import 'package:possystem/models/pos_sales_master.dart';
 import 'package:possystem/models/pos_sales_payment.dart';
@@ -37,9 +38,24 @@ class _DraftItemState extends State<DraftItem> {
     var dat = widget.data[widget.index];
     List<POSSalesDetail> possalesdetails =
         await MyDatabase.instance.readpossalesdetails(ids);
+   // Customer customerdata= await MyDatabase.instance.readcutomer(dat.customerID);
     cart.clear();
     order.pOSSalesMasterID = dat.pOSSalesMasterID;
-
+    cart.discountcontroller.text=dat.discount.toString();
+    cart.buttonselectedddiscount=dat.discountType;
+    cart.disData=dat.discount;
+    // cart.cusData["fullname"]=customerdata.fullName.toString();
+    // cart.cusData['address']=customerdata.address.toString();
+    // cart.cusData['email']=customerdata.email.toString();
+    // cart.cusData['phoneno']=customerdata.phoneNo.toString();
+    if(dat.discountType=="IN %"){
+      print("yesma heer la");
+      print(dat.netAmount.toStringAsFixed(2));
+      print(dat.discount.toStringAsFixed(2));
+      cart.discountcontroller.text=((dat.discount/double.parse(dat.netAmount.toStringAsFixed(2))*100).toStringAsFixed(2));
+    }
+    print("yesma heer la aba yo herer");
+     print(dat.discount.toStringAsFixed(2));
     for (int i = 0; i < possalesdetails.length; i++) {
       List<ProductAdonMappingInfo?> productadonmappinginfo = [];
       List<AdonItem> adonitems = [];
@@ -76,10 +92,10 @@ class _DraftItemState extends State<DraftItem> {
         cart.remarkscontroller.text = dat.remarks;
       }
       var adonlist = possalesdetails[i].adonIDs.split(",");
-print(adonlist);
-      if (adonlist.length != 0) {
+
+      if (adonlist.length !=0) {
         for (int j = 0; j < adonlist.length; j++) {
-          print(particularadonlist[j].split(':'));
+          if(particularadonlist[j].isNotEmpty){
           for (int l = 0;
               l < int.parse(particularadonlist[j].split(':')[1]);
               l++) {
@@ -106,7 +122,7 @@ print(adonlist);
                   adonlist[j], () => cart.items.values.toList()[i].adonlist[adonindex]);
             }
           }
-        }
+        }}
       }
     }
   }

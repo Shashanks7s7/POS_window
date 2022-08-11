@@ -28,15 +28,17 @@ class MyDatabase {
   }
 
   Future<Database> _initDB(String filepath) async {
-    //final dbPath = await getDatabasesPath();
-    // final path = d.join(dbPath, filepath);
+    // final dbPath = await getDatabasesPath();
+    //  final path = d.join(dbPath, filepath);
     // return await openDatabase(path, version: 1, onCreate: _createDB,);
     sqfliteFfiInit();
 
+
   var databaseFactory = databaseFactoryFfi;
+  String path = '${await databaseFactory.getDatabasesPath()}\\myDB.db';
   var db= await databaseFactory.openDatabase(inMemoryDatabasePath,options: OpenDatabaseOptions(version: 1,onCreate: _createDB));
 
-  print("4546454654654654654");
+  print("4546454654654654654"+"     ");
   return db;
   
   }
@@ -271,6 +273,18 @@ class MyDatabase {
     }
     
   }
+
+  Future<Customer> readcutomer(int id) async {
+    final db = await instance.database;
+    final maps = await db!.rawQuery('SELECT * FROM $tableCustomer WHERE _customerID=?', [id]);
+    if (maps.isNotEmpty) {
+      return Customer.fromJson(maps.first); 
+    } else {
+      throw Exception('ID $id not found');
+    }
+    
+  }
+
   Future<List<POSSalesDetail>> readpossalesdetails(int id) async {
     final db = await instance.database;
     final maps = await db!.rawQuery('SELECT * FROM $tablePosSalesDetails WHERE pOSSalesMasterID=?', [id]);
@@ -387,9 +401,11 @@ class MyDatabase {
         where: '${ProductsCategoryField.productCategoryID} = ?',
         whereArgs: [procat.productCategoryID]);
   }
-  Future<int> updatepossalesmater(int id,String remarks)async{
+  Future<int> updatepossalesmater(int id,String remarks,double netamount,
+      double grandtotal,String discounttype,
+      double discount,)async{
     final db = await instance.database;
-    return db!.update(tablePOSSalesMaster, {'remarks':remarks},
+    return db!.update(tablePOSSalesMaster, {'remarks':remarks,'netAmount':netamount,'grandTotal':grandtotal, 'discountType':discounttype,'discount':discount},
         where: '${POSSalesMasterField.pOSSalesMasterID} = ?',
         whereArgs: [id]);
   }

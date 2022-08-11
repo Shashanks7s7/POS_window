@@ -2,7 +2,7 @@
 ; SEE THE DOCUMENTATION FOR DETAILS ON CREATING INNO SETUP SCRIPT FILES!
 
 #define MyAppName "POS Desktop"
-#define MyAppVersion "1.2"
+#define MyAppVersion "1.3"
 #define MyAppPublisher "Alsmartaem"
 #define MyAppURL "https://www.alsmartaem.com/"
 #define MyAppExeName "possystem.exe"
@@ -23,7 +23,7 @@ DisableProgramGroupPage=yes
 ; Uncomment the following line to run in non administrative install mode (install for current user only.)
 ;PrivilegesRequired=lowest
 OutputDir=C:\possystem\installer
-OutputBaseFilename=pos_installer_v1.2
+OutputBaseFilename=pos_installer_v1.3
 SetupIconFile=
 Compression=lzma
 SolidCompression=yes
