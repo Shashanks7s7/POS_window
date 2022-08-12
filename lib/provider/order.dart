@@ -1,5 +1,3 @@
-
-
 import 'package:flutter/cupertino.dart';
 
 import 'package:possystem/db/mydatabase.dart';
@@ -57,23 +55,26 @@ class Order with ChangeNotifier {
   List<OrderItems> get items {
     return [..._items];
   }
+
   int? pOSSalesMasterID;
 
-   Qr? _qrdata;
-Qr? get qrdata {
+  Qr? _qrdata;
+  Qr? get qrdata {
     return _qrdata;
   }
-   addqrdata(int customerid, String? name,String? fullname,String? address,String? email,String? phoneno) {
-     
-    _qrdata= Qr(cusid: customerid,name: name,
-    fullname: fullname,
-    address: address,
-    email: email,
-    phoneno:phoneno 
-    );
-    
+
+  addqrdata(int customerid, String? name, String? fullname, String? address,
+      String? email, String? phoneno) {
+    _qrdata = Qr(
+        cusid: customerid,
+        name: name,
+        fullname: fullname,
+        address: address,
+        email: email,
+        phoneno: phoneno);
+
     notifyListeners();
-   }
+  }
 
   int index = 1;
   additems(
@@ -117,49 +118,87 @@ Qr? get qrdata {
     _items.removeWhere((element) => element.possalesmasterid == id);
     notifyListeners();
   }
-  addcustomertoDatabase(String? fullname,String? address,String? email,String? phoneno,String createdBy)async{
-    final cusdata=Customer(customerID: null, fullName: fullname, address: address, status: 1, email: email, phoneNo: phoneno, createdBy: createdBy, createdDate: DateTime.now(), modifiedBy: createdBy ,modifiedDate:DateTime.now());
+
+  addcustomertoDatabase(String? fullname, String? address, String? email,
+      String? phoneno, String createdBy) async {
+    final cusdata = Customer(
+        customerID: _qrdata!.cusid,
+        fullName: fullname,
+        address: address,
+        status: 1,
+        email: email,
+        phoneNo: phoneno,
+        createdBy: createdBy,
+        createdDate: DateTime.now(),
+        modifiedBy: createdBy,
+        modifiedDate: DateTime.now());
     await MyDatabase.instance.createcustomer(cusdata);
+  }
+
+  edittodb(
+    String remarks,
+    List<CartItem> cartItem,
+    double netamount,
+    double grandtotal,
+    String discounttype,
+    double discount,
+          List<PayAdd> paymentss,
+          int status,
+           String createdby,
+
+  ) async {
+    if (pOSSalesMasterID != null) {
+      print("database ma update vako discount" + discount.toString());
+      await MyDatabase.instance.deleteposSalesdetailperid(pOSSalesMasterID);
+         await MyDatabase.instance.deleteposSalespayment(pOSSalesMasterID);
+      await MyDatabase.instance.updatepossalesmater(pOSSalesMasterID!, remarks,
+          netamount, grandtotal, discounttype, discount);
+      for (int i = 0; i < cartItem.length; i++) {
+        List adonidss = [];
+        String idquan = "";
+        if (cartItem.isNotEmpty) {
+          cartItem[i].selectedadonlist!.forEach((key, value) {
+            adonidss.add(value.adonid);
+            idquan = idquan +
+                value.adonid +
+                ":" +
+                value.adonquantity.toString() +
+                ',';
+          });
+        }
+
+        final data2 = POSSalesDetail(
+            pOSSalesDetailID: null,
+            pOSSalesMasterID: pOSSalesMasterID!,
+            productID: int.parse(cartItem[i].productid),
+            quantity: cartItem[i].quantity,
+            rate: cartItem[i].unitprice.toString(),
+            notes: cartItem[i].message.toString(),
+            adonIDs: adonidss.join(','),
+            extraAdonIDs: idquan);
+        await MyDatabase.instance.createpossalesdetail(data2);
+      }
+    }
+      for (int j = 0; j < paymentss.length; j++) {
+        int index3=DateTime.now().millisecondsSinceEpoch;
+  final data3=POSSalesPayment(
+    pOSSalesPaymentID: null,
+     pOSSalesMasterID: pOSSalesMasterID!,
+      paymentModeID: paymentss[j].paymentid,
+      amount: paymentss[j].amount, 
+      status:status , 
+      createdBy: createdby,
+       createdDate: DateTime.now());
+await MyDatabase.instance.createpossalespayment(data3);
+
+
+    }
+    pOSSalesMasterID = null;
 
   }
-  edittodb(String remarks,  List<CartItem> cartItem,double netamount,
-      double grandtotal, String discounttype,
-      double discount,)async{
-    if(pOSSalesMasterID!=null){
-      print("database ma update vako discount"+discount.toString());
-      await MyDatabase.instance.deleteposSalesdetailperid(pOSSalesMasterID);
-     await MyDatabase.instance.updatepossalesmater(pOSSalesMasterID!,remarks,netamount,grandtotal, discounttype,discount );
- for (int i = 0; i < cartItem.length; i++) {
-      
-      List adonidss = [];
-      String idquan = "";
-      if(cartItem.isNotEmpty){
-      cartItem[i].selectedadonlist!.forEach((key, value) {
-        adonidss.add(value.adonid);
-        idquan =
-            idquan + value.adonid + ":" + value.adonquantity.toString() + ',';
-      });
-      }
-      
-      
-      final data2 = POSSalesDetail(
-          pOSSalesDetailID: null,
-          pOSSalesMasterID: pOSSalesMasterID!,
-          productID: int.parse(cartItem[i].productid),
-          quantity: cartItem[i].quantity,
-          rate: cartItem[i].unitprice.toString(),
-          notes: cartItem[i].message.toString(),
-          adonIDs: adonidss.join(','),
-          extraAdonIDs: idquan);
-      await MyDatabase.instance.createpossalesdetail(data2);
- 
-     
-    }
-  }
-  pOSSalesMasterID=null;
-  }
+
   addtodb(
-    int customerid,
+      int customerid,
       List<CartItem> cartItem,
       double netamount,
       double grandtotal,
@@ -175,17 +214,17 @@ Qr? get qrdata {
       List<PayAdd> paymentss,
       int status,
       int salesstatus) async {
-    
-        String salesid=UniqueKey().toString();
+    String salesid = UniqueKey().toString();
     final data1 = POSSalesMaster(
-        pOSSalesMasterID:null,
+        pOSSalesMasterID: null,
         salesNo: salesid,
         customerID: customerid,
         orderTypeID: 1,
         isVoid: isvoid,
         voidReason: voidreason.toString(),
         voidBy: voidby.toString(),
-        voidDate: voiddate==null?voiddate.toString() :voiddate.toIso8601String(),
+        voidDate:
+            voiddate == null ? voiddate.toString() : voiddate.toIso8601String(),
         netAmount: netamount,
         taxPercentage: 15,
         grandTotal: grandtotal,
@@ -197,23 +236,22 @@ Qr? get qrdata {
         salesStatus: salesstatus,
         createdDate: DateTime.now());
     await MyDatabase.instance.createpossalesmaster(data1);
-   
-    String posid=await MyDatabase.instance.readpossalesmasterid(salesid);
+
+    String posid = await MyDatabase.instance.readpossalesmasterid(salesid);
     for (int i = 0; i < cartItem.length; i++) {
-      
       List adonidss = [];
       String idquan = "";
-      if(cartItem.isNotEmpty){
-      cartItem[i].selectedadonlist!.forEach((key, value) {
-        adonidss.add(value.adonid);
-        idquan =
-            idquan + value.adonid + ":" + value.adonquantity.toString() + ',';
-      });
+      if (cartItem.isNotEmpty) {
+        cartItem[i].selectedadonlist!.forEach((key, value) {
+          adonidss.add(value.adonid);
+          idquan =
+              idquan + value.adonid + ":" + value.adonquantity.toString() + ',';
+        });
       }
-      
+
       final data2 = POSSalesDetail(
           pOSSalesDetailID: null,
-          pOSSalesMasterID:int.parse( posid),
+          pOSSalesMasterID: int.parse(posid),
           productID: int.parse(cartItem[i].productid),
           quantity: cartItem[i].quantity,
           rate: cartItem[i].unitprice.toString(),
@@ -221,33 +259,36 @@ Qr? get qrdata {
           adonIDs: adonidss.join(','),
           extraAdonIDs: idquan);
       await MyDatabase.instance.createpossalesdetail(data2);
- 
-     
     }
 
     for (int j = 0; j < paymentss.length; j++) {
-        int index3=DateTime.now().millisecondsSinceEpoch;
-  final data3=POSSalesPayment(
-    pOSSalesPaymentID: null,
-     pOSSalesMasterID: int.parse( posid),
-      paymentModeID: paymentss[j].paymentid,
-      amount: paymentss[j].amount, 
-      status:status , 
-      createdBy: createdby,
-       createdDate: DateTime.now());
-await MyDatabase.instance.createpossalespayment(data3);
-
-
+      int index3 = DateTime.now().millisecondsSinceEpoch;
+      final data3 = POSSalesPayment(
+          pOSSalesPaymentID: null,
+          pOSSalesMasterID: int.parse(posid),
+          paymentModeID: paymentss[j].paymentid,
+          amount: paymentss[j].amount,
+          status: status,
+          createdBy: createdby,
+          createdDate: DateTime.now());
+      await MyDatabase.instance.createpossalespayment(data3);
     }
-   index=index+1;
+    index = index + 1;
   }
 }
-class Qr{
-int cusid;
-String? name;
-String? fullname;
-String? address;
-String? email;
-String? phoneno;
-Qr({required this.cusid,required this.name ,required this.fullname,required this.address,required this.email,required this.phoneno});
+
+class Qr {
+  int cusid;
+  String? name;
+  String? fullname;
+  String? address;
+  String? email;
+  String? phoneno;
+  Qr(
+      {required this.cusid,
+      required this.name,
+      required this.fullname,
+      required this.address,
+      required this.email,
+      required this.phoneno});
 }

@@ -303,6 +303,8 @@ class MyDatabase {
       throw Exception('ID $salesno not found');
     }
   }
+
+  
   Future<List<POSSalesPayment>> readpossalespayments(int id) async {
     final db = await instance.database;
     final maps = await db!.rawQuery('SELECT * FROM $tablePOSSalesPayment WHERE pOSSalesMasterID=?', [id]);
@@ -319,6 +321,16 @@ class MyDatabase {
       return PaymentMode.fromJson(maps.first);
     } else {
       throw Exception('ID $name not found');
+    }
+    
+  }
+  Future<PaymentMode> readpaymentName(int id) async {
+    final db = await instance.database;
+    final maps = await db!.rawQuery('SELECT * FROM $tablePaymentMode WHERE _paymentModeID=?', [id]);
+    if (maps.isNotEmpty) {
+      return PaymentMode.fromJson(maps.first);
+    } else {
+      throw Exception('ID $id not found');
     }
     
   }
@@ -469,6 +481,13 @@ class MyDatabase {
   Future deleteposSalesdetailperid(id)async{
      final db = await instance.database;
    return await db!.delete(tablePosSalesDetails,
+    where: 'pOSSalesMasterID= ?',
+        whereArgs: [id] 
+   );
+  }
+  Future deleteposSalespayment(id)async{
+     final db = await instance.database;
+   return await db!.delete(tablePOSSalesPayment,
     where: 'pOSSalesMasterID= ?',
         whereArgs: [id] 
    );

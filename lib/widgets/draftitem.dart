@@ -12,6 +12,7 @@ import 'package:possystem/models/product_adon.dart';
 import 'package:possystem/provider/ad.dart' as ad;
 import 'package:possystem/provider/cart.dart';
 import 'package:possystem/provider/order.dart';
+import 'package:possystem/provider/payadd.dart';
 import "package:provider/provider.dart";
 
 import '../models/product_adon_mapping_info.dart';
@@ -35,27 +36,48 @@ class _DraftItemState extends State<DraftItem> {
     final order = Provider.of<Order>(context, listen: false);
 
     final cart = Provider.of<Cart>(context, listen: false);
+    final payadd = Provider.of<PayA>(context, listen: false);
+    payadd.clear();
     var dat = widget.data[widget.index];
     List<POSSalesDetail> possalesdetails =
         await MyDatabase.instance.readpossalesdetails(ids);
-   // Customer customerdata= await MyDatabase.instance.readcutomer(dat.customerID);
+    Customer customerdata =
+        await MyDatabase.instance.readcutomer(dat.customerID);
     cart.clear();
     order.pOSSalesMasterID = dat.pOSSalesMasterID;
-    cart.discountcontroller.text=dat.discount.toString();
-    cart.buttonselectedddiscount=dat.discountType;
-    cart.disData=dat.discount;
-    // cart.cusData["fullname"]=customerdata.fullName.toString();
-    // cart.cusData['address']=customerdata.address.toString();
-    // cart.cusData['email']=customerdata.email.toString();
-    // cart.cusData['phoneno']=customerdata.phoneNo.toString();
-    if(dat.discountType=="IN %"){
+    cart.discountcontroller.text = dat.discount.toString();
+    cart.buttonselectedddiscount = dat.discountType;
+    cart.disData = dat.discount;
+    cart.fullnamecontroller.text = customerdata.fullName.toString();
+    cart.addresscontroller.text = customerdata.address.toString();
+    cart.emailcontroller.text = customerdata.email.toString();
+    cart.phonenocontroller.text = customerdata.phoneNo.toString();
+    List<POSSalesPayment> posSalesPayment =
+        await MyDatabase.instance.readpossalespayments(dat.pOSSalesMasterID!);
+
+    posSalesPayment.forEach((element) async {
+      print("dfjlkdjflkfdj");
+      var name =
+          await MyDatabase.instance.readpaymentName(element.paymentModeID);
+      payadd.additems(element.paymentModeID, name.name, element.amount);
+    });
+    order.addqrdata(
+        customerdata.customerID!,
+        null,
+        cart.fullnamecontroller.text,
+        cart.addresscontroller.text,
+        cart.emailcontroller.text,
+        cart.phonenocontroller.text);
+    if (dat.discountType == "IN %") {
       print("yesma heer la");
       print(dat.netAmount.toStringAsFixed(2));
       print(dat.discount.toStringAsFixed(2));
-      cart.discountcontroller.text=((dat.discount/double.parse(dat.netAmount.toStringAsFixed(2))*100).toStringAsFixed(2));
+      cart.discountcontroller.text =
+          ((dat.discount / double.parse(dat.netAmount.toStringAsFixed(2)) * 100)
+              .toStringAsFixed(2));
     }
     print("yesma heer la aba yo herer");
-     print(dat.discount.toStringAsFixed(2));
+    print(dat.discount.toStringAsFixed(2));
     for (int i = 0; i < possalesdetails.length; i++) {
       List<ProductAdonMappingInfo?> productadonmappinginfo = [];
       List<AdonItem> adonitems = [];
@@ -93,36 +115,49 @@ class _DraftItemState extends State<DraftItem> {
       }
       var adonlist = possalesdetails[i].adonIDs.split(",");
 
-      if (adonlist.length !=0) {
+      if (adonlist.length != 0) {
         for (int j = 0; j < adonlist.length; j++) {
-          if(particularadonlist[j].isNotEmpty){
-          for (int l = 0;
-              l < int.parse(particularadonlist[j].split(':')[1]);
-              l++) {
-                var adonindex= cart.items.values.toList()[i].adonlist.indexWhere((element) => element.adonid==adonlist[j]);
-            if (cart.items.values
-                .toList()[i]
-                .selectedadonlist!
-                .containsKey(adonlist[j])) {
-              cart.items.values.toList()[i].selectedadonlist!.update(
-                  adonlist[j],
-                  (value) => AdonItem(
-                      adonid: value.adonid,
-                      adonname: value.adonname,
-                      unitprice: value.unitprice,
-                      selected: value.selected,
-                      adonquantity: value.adonquantity + 1));
-              cart.items.values.toList()[i].adonlist[adonindex].adonquantity =
-                  cart.items.values.toList()[i].adonlist[adonindex].adonquantity + 1;
-            } else {
-              cart.items.values.toList()[i].adonlist[adonindex].adonquantity =
-                  cart.items.values.toList()[i].adonlist[adonindex].adonquantity + 1;
+          if (particularadonlist[j].isNotEmpty) {
+            for (int l = 0;
+                l < int.parse(particularadonlist[j].split(':')[1]);
+                l++) {
+              var adonindex = cart.items.values
+                  .toList()[i]
+                  .adonlist
+                  .indexWhere((element) => element.adonid == adonlist[j]);
+              if (cart.items.values
+                  .toList()[i]
+                  .selectedadonlist!
+                  .containsKey(adonlist[j])) {
+                cart.items.values.toList()[i].selectedadonlist!.update(
+                    adonlist[j],
+                    (value) => AdonItem(
+                        adonid: value.adonid,
+                        adonname: value.adonname,
+                        unitprice: value.unitprice,
+                        selected: value.selected,
+                        adonquantity: value.adonquantity + 1));
+                cart.items.values.toList()[i].adonlist[adonindex].adonquantity =
+                    cart.items.values
+                            .toList()[i]
+                            .adonlist[adonindex]
+                            .adonquantity +
+                        1;
+              } else {
+                cart.items.values.toList()[i].adonlist[adonindex].adonquantity =
+                    cart.items.values
+                            .toList()[i]
+                            .adonlist[adonindex]
+                            .adonquantity +
+                        1;
 
-              cart.items.values.toList()[i].selectedadonlist!.putIfAbsent(
-                  adonlist[j], () => cart.items.values.toList()[i].adonlist[adonindex]);
+                cart.items.values.toList()[i].selectedadonlist!.putIfAbsent(
+                    adonlist[j],
+                    () => cart.items.values.toList()[i].adonlist[adonindex]);
+              }
             }
           }
-        }}
+        }
       }
     }
   }
@@ -290,14 +325,7 @@ class _DraftItemState extends State<DraftItem> {
                                 widget.data, widget.index, widget.uid);
                           });
                     }),
-                IconButton(
-                    onPressed: () {
-                      setState(() {
-                        expanded = !expanded;
-                      });
-                    },
-                    icon: Icon(
-                        !expanded ? Icons.expand_more : Icons.expand_less)),
+              
               ],
             )),
       ),

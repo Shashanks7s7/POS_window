@@ -10,7 +10,6 @@ import 'package:possystem/models/productscategory.dart';
 
 import 'package:possystem/provider/cart.dart';
 
-
 import 'package:possystem/widgets/foodcard.dart';
 import 'package:possystem/widgets/sideposscreen.dart';
 
@@ -25,7 +24,7 @@ class ProductsOverView extends StatefulWidget {
 
 class _ProductsOverViewState extends State<ProductsOverView> {
   var value = 0;
-  bool? isImageShown=true;
+  bool? isImageShown = true;
   var isloading = false;
   var isloadingcategory = false;
   List<ProductsCategory> procat = [];
@@ -35,7 +34,6 @@ class _ProductsOverViewState extends State<ProductsOverView> {
   List<ProductAdonMappingInfo> productadonmappinginfo = [];
   List<Product> searchproducts = [];
   List<Product> allproducts = [];
- 
 
   @override
   void initState() {
@@ -50,7 +48,6 @@ class _ProductsOverViewState extends State<ProductsOverView> {
     });
 
     procat = await MyDatabase.instance.readAllprocat();
-
 
     Provider.of<DbInitializer>(context, listen: false).getpaymentmodes();
     Provider.of<DbInitializer>(context, listen: false).getprocat();
@@ -70,7 +67,7 @@ class _ProductsOverViewState extends State<ProductsOverView> {
     var orientation = MediaQuery.of(context).orientation;
     bool ispotriat = orientation == Orientation.portrait;
     ispotriat
-        ?  ScreenUtil.init(
+        ? ScreenUtil.init(
             context,
             designSize: const Size(600, 912),
           )
@@ -135,78 +132,91 @@ class _ProductsOverViewState extends State<ProductsOverView> {
                                     child: Text('MENU', style: headerStyle),
                                   ),
                                   const Spacer(),
-                                  IconButton(icon: Icon(Icons.ad_units),onPressed: (){
-setState(() {
-  if(isImageShown!=null){
-  isImageShown=!isImageShown!;
-                                  }});
-                                  },),
+                                  TextButton(
+                                    child: isImageShown == true
+                                        ? Text("Hide Images",style: TextStyle(fontSize: 15,fontWeight: FontWeight.w700),)
+                                        : Text("Show Images",style: TextStyle(fontSize: 15,fontWeight: FontWeight.w700),),
+                                    onPressed: () {
+                                      setState(() {
+                                        if (isImageShown != null) {
+                                          isImageShown = !isImageShown!;
+                                        }
+                                      });
+                                    },
+                                  ),
                                   const Spacer(),
-                                  IconButton(
-                                      onPressed: () {
-                                        showDialog(
-                                            context: context,
-                                            builder: (context) => AlertDialog(
-                                                title: Center(
-                                                  child: Text("Search"),
-                                                ),
-                                                content: Column(
-                                                  children: [
-                                                    SizedBox(
-                                                      child: TextField(
-                                                        decoration:
-                                                            InputDecoration(
-                                                                contentPadding:
-                                                                    EdgeInsets
-                                                                        .all(
-                                                                            15.0),
-                                                                prefixIcon:
-                                                                    Icon(Icons
-                                                                        .search),
-                                                                hintText:
-                                                                    "Search "),
-                                                        onChanged: (value) {
-                                                          setState(() {
-                                                            searchproducts = allproducts
-                                                                .where((element) => (element
-                                                                    .productName!
-                                                                    .contains(value
-                                                                        .toUpperCase())))
-                                                                .toList();
-                                                          });
-                                                        },
-                                                      ),
-                                                    ),
-                                                    Container(
-                                                        height: 470.h,
-                                                        child: ListView.builder(
-                                                            key: UniqueKey(),
+                                  // IconButton(
+                                  //     onPressed: () {
+                                  //       showDialog(
+                                  //           context: context,
+                                  //           builder: (context) => AlertDialog(
+                                  //               title: Center(
+                                  //                 child: Text("Search"),
+                                  //               ),
+                                  //               content: Column(
+                                  //                 children: [
+                                  //                   SizedBox(
+                                  //                     child: TextField(
+                                  //                       decoration:
+                                  //                           InputDecoration(
+                                  //                               contentPadding:
+                                  //                                   EdgeInsets
+                                  //                                       .all(
+                                  //                                           15.0),
+                                  //                               prefixIcon:
+                                  //                                   Icon(Icons
+                                  //                                       .search),
+                                  //                               hintText:
+                                  //                                   "Search "),
+                                  //                       onChanged: (value) {
+                                  //                         setState(() {
+                                  //                           searchproducts = allproducts
+                                  //                               .where((element) => (element
+                                  //                                   .productName!
+                                  //                                   .contains(value
+                                  //                                       .toUpperCase())))
+                                  //                               .toList();
+                                  //                         });
+                                  //                       },
+                                  //                     ),
+                                  //                   ),
+                                  //                   Container(
+                                  //                       height: 470.h,
+                                  //                       child: ListView.builder(
+                                  //                           key: UniqueKey(),
 
-                                                            //  physics: const BouncingScrollPhysics(),
-                                                            itemCount:
-                                                                searchproducts
-                                                                    .length,
-                                                            itemBuilder:
-                                                                (context,
-                                                                    index) {
-                                                              print("object+++++++++++++++++//////////////////////********************" +
-                                                                  searchproducts
-                                                                      .toString());
-                                                              return new FoodCard(
-                                                                product:
-                                                                    searchproducts[
-                                                                        index],
-                                                                key:
-                                                                    UniqueKey(),
-                                                              );
-                                                            }))
-                                                  ],
-                                                )));
-                                      },
-                                      icon: Icon(
-                                        Icons.search,
-                                        size: 30.w,
-                                      )),
+                                  //                           //  physics: const BouncingScrollPhysics(),
+                                  //                           itemCount:
+                                  //                               searchproducts
+                                  //                                   .length,
+                                  //                           itemBuilder:
+                                  //                               (context,
+                                  //                                   index) {
+                                  //                             print("object+++++++++++++++++//////////////////////********************" +
+                                  //                                 searchproducts
+                                  //                                     .toString());
+                                  //                             return new FoodCard(
+                                  //                               product:
+                                  //                                   searchproducts[
+                                  //                                       index],
+                                  //                               key:
+                                  //                                   UniqueKey(),
+                                  //                             );
+                                  //                           }))
+                                  //                 ],
+                                  //               )));
+                                  //     },
+                                  //     icon: Icon(
+                                  //       Icons.search,
+                                  //       size: 30.w,
+                                  //     ))
+                                  Padding(
+                                    padding: const EdgeInsets.all(8.0),
+                                    child: ElevatedButton(
+                                        onPressed: () => Navigator.of(context)
+                                            .pushNamed("history"),
+                                        child: Text("History")),
+                                  )
                                 ],
                               ),
                             ),
@@ -358,7 +368,6 @@ setState(() {
   Widget buildFoodFilter() {
     return Container(
       height: 51.h,
-    
       child: ListView(
         scrollDirection: Axis.horizontal,
         shrinkWrap: true,
@@ -396,33 +405,33 @@ setState(() {
     var height = MediaQuery.of(context).size.height;
     final dat = Provider.of<DbInitializer>(context, listen: false)
         .categorizedproducts['$value'];
-        print(MediaQuery.of(context).size.width.toString()+ispotriat.toString()+height.toString());
+    print(MediaQuery.of(context).size.width.toString() +
+        ispotriat.toString() +
+        height.toString());
     return Expanded(
         child: GridView.builder(
             gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
                 crossAxisCount: ispotriat ? 2 : 3,
-                childAspectRatio:!isImageShown!? 1.2
-                .h:
-                ispotriat
-                    ? height > 1000
-                        ? 0.60.h
-                        : 0.7
-                    : height > 1000
-                        ? 0.57.h
-                        : height > 900
-                            ? 0.75.h
-                            : 0.8.h,
+                childAspectRatio: !isImageShown!
+                    ? 1.2.h
+                    : ispotriat
+                        ? height > 1000
+                            ? 0.60.h
+                            : 0.7
+                        : height > 1000
+                            ? 0.57.h
+                            : height > 900
+                                ? 0.75.h
+                                : 0.8.h,
                 crossAxisSpacing: 5.w,
                 mainAxisSpacing: 4.h),
             physics: const BouncingScrollPhysics(),
-            
             itemCount: dat == null ? products.length : dat.length,
             itemBuilder: (context, index) {
               return FoodCard(
-                  product: dat == null ? products[index] : dat[index],
-                  isImageShown: isImageShown,
-                  );
-
+                product: dat == null ? products[index] : dat[index],
+                isImageShown: isImageShown,
+              );
             }));
   }
 
@@ -462,10 +471,9 @@ setState(() {
                       "object+++++++++++++++++//////////////////////********************" +
                           searchproducts.toString());
                   return new FoodCard(
-                    product: searchproducts[index],
-                    key: UniqueKey(),
-                    isImageShown:isImageShown
-                  );
+                      product: searchproducts[index],
+                      key: UniqueKey(),
+                      isImageShown: isImageShown);
                 }))
       ],
     );

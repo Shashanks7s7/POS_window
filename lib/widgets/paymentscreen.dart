@@ -401,6 +401,7 @@ class _PaymentScreenState extends State<PaymentScreen> {
                                                 onPressed: () {
                                                   if (order.pOSSalesMasterID ==
                                                       null) {
+                                                        print("yo hai qr data ko id "+ qrdata.cusid.toString());
                                                     order.addtodb(
                                                         qrdata.cusid,
                                                         cartt.items.values
@@ -430,6 +431,8 @@ class _PaymentScreenState extends State<PaymentScreen> {
                                                       gt,
                                                       widget.discounttype,
                                                       cart.disData,
+                                       p.items.values.toList(),1,
+                                                                                               widget.uid,
                                                     );
                                                   }
                                                   Navigator.of(context).pop();
@@ -627,7 +630,7 @@ class _PaymentScreenState extends State<PaymentScreen> {
     final cartitems = Provider.of<Cart>(context, listen: false).items;
     final cart = Provider.of<Cart>(context, listen: false);
     final payment = Provider.of<PayA>(context, listen: false);
-    print(Provider.of<Cart>(context, listen: false).cusData);
+
     final image = await imageFromAssetBundle(
       "assets/images/aem.jpg",
     );

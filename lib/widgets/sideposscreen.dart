@@ -612,7 +612,7 @@ class _SidePosScreenState extends State<SidePosScreen>
   Widget customerfield(String uid) {
     final GlobalKey<FormState> key = GlobalKey();
     final order = Provider.of<Order>(context, listen: false);
- Map cusData= Provider.of<Cart>(context, listen: false).cusData;
+ final cart= Provider.of<Cart>(context, listen: false);
 
     onsave() {
       if (!key.currentState!.validate()) {
@@ -622,12 +622,14 @@ class _SidePosScreenState extends State<SidePosScreen>
       order.addqrdata(
           DateTime.now().millisecondsSinceEpoch,
           null,
-          cusData['fullname'],
-          cusData['address'],
-          cusData['email'],
-          cusData['phoneno']);
-      order.addcustomertoDatabase(cusData['fullname'], cusData['address'],
-          cusData['email'], cusData['phoneno'], uid);
+          cart.fullnamecontroller.text,
+         cart.addresscontroller.text,
+         cart.emailcontroller.text,
+         cart.phonenocontroller.text
+         );
+      order.addcustomertoDatabase(cart.fullnamecontroller.text, cart.addresscontroller.text,
+         cart.emailcontroller.text,
+         cart.phonenocontroller.text, uid);
       Navigator.of(context).pop();
     }
 
@@ -645,9 +647,7 @@ class _SidePosScreenState extends State<SidePosScreen>
                       decoration: const InputDecoration(labelText: 'Full Name'),
                       keyboardType: TextInputType.name,
                       autofillHints: {"hari", "ram", "shyam"},
-                      onSaved: (value) {
-                        cusData['fullname'] = value.toString();
-                      },
+                     controller: cart.fullnamecontroller,
                     ),
                     TextFormField(
                       decoration: const InputDecoration(labelText: 'Address'),
@@ -655,9 +655,7 @@ class _SidePosScreenState extends State<SidePosScreen>
                       autofillHints: [AutofillHints.addressCity],
                       onEditingComplete: () =>
                           TextInput.finishAutofillContext(),
-                      onSaved: (value) {
-                        cusData['address'] = value.toString();
-                      },
+                     controller: cart.addresscontroller,
                     ),
                     TextFormField(
                       decoration: const InputDecoration(
@@ -667,9 +665,7 @@ class _SidePosScreenState extends State<SidePosScreen>
                       autofillHints: [AutofillHints.email],
                       onEditingComplete: () =>
                           TextInput.finishAutofillContext(),
-                      onSaved: (value) {
-                        cusData['email'] = value.toString();
-                      },
+                      controller: cart.emailcontroller,
                     ),
                     TextFormField(
                       decoration: const InputDecoration(labelText: 'PhoneNo'),
@@ -682,9 +678,7 @@ class _SidePosScreenState extends State<SidePosScreen>
                           return 'PhoneNo is missing';
                         }
                       },
-                      onSaved: (value) {
-                        cusData['phoneno'] = value.toString();
-                      },
+                     controller: cart.phonenocontroller,
                     ),
                     SizedBox(height: 20.h),
                     Row(
