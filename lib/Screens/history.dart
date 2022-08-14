@@ -84,15 +84,15 @@ Future getposdata() async{
                             mainAxisSize: MainAxisSize.min,
                             children: [
                                FittedBox(
-                                 child: Text("Net Amount: ${posmasterlist[index].netAmount}",style: titleStyle4,
+                                 child: Text("Net Amount: ${posmasterlist[index].netAmount.toStringAsFixed(2)}",style: titleStyle4,
                                                            ),
                                ),
                                FittedBox(
-                                 child: Text( posmasterlist[index].discountType+" :  "+posmasterlist[index].discount.toString(),style: titleStyle4,
+                                 child: Text( "Discount"+" :  "+posmasterlist[index].discount.toStringAsFixed(2),style: titleStyle4,
                                                            ),
                                ),
                               FittedBox(
-                                child: Text("Grand Total: ${posmasterlist[index].grandTotal}",style: titleStyle4,
+                                child: Text("Grand Total: ${posmasterlist[index].grandTotal.toStringAsFixed(2)}",style: titleStyle4,
                                 ),
                               ),
                             ],

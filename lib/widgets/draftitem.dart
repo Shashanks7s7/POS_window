@@ -44,7 +44,7 @@ class _DraftItemState extends State<DraftItem> {
     Customer customerdata =
         await MyDatabase.instance.readcutomer(dat.customerID);
     cart.clear();
-    order.pOSSalesMasterID = dat.pOSSalesMasterID;
+    // order.pOSSalesMasterID = dat.pOSSalesMasterID;
     cart.discountcontroller.text = dat.discount.toString();
     cart.buttonselectedddiscount = dat.discountType;
     cart.disData = dat.discount;
@@ -162,6 +162,13 @@ class _DraftItemState extends State<DraftItem> {
     }
   }
 
+  onreordertheSales(int id,context) async {
+    // await MyDatabase.instance.updatePOsSalesMasterStatus(id);
+      Provider.of<Order>(context,listen: false).pOSSalesMasterID =null;
+    onedit(id, context);
+     
+      }
+
   onreorder(int ids) async {
     List<POSSalesPayment> possalespayments =
         await MyDatabase.instance.readpossalespayments(ids);
@@ -251,6 +258,7 @@ class _DraftItemState extends State<DraftItem> {
                                     onPressed: () {
                                       Navigator.of(context).pop();
                                       Navigator.of(context).pop();
+                                      Provider.of<Order>(context,listen: false).pOSSalesMasterID = widget.data[widget.index].pOSSalesMasterID!;
                                       onedit(
                                           widget.data[widget.index]
                                               .pOSSalesMasterID!,
@@ -282,8 +290,13 @@ class _DraftItemState extends State<DraftItem> {
                             actions: [
                               ElevatedButton(
                                   onPressed: () {
-                                    onreorder(widget
-                                        .data[widget.index].pOSSalesMasterID!);
+                                    
+                                    onreordertheSales(
+                                      widget
+                                          .data[widget.index].pOSSalesMasterID!,context
+                                    );
+                                    // onreorder(widget
+                                    //     .data[widget.index].pOSSalesMasterID!);
                                     Navigator.of(context).pop();
                                     Navigator.of(context).pop();
                                     ScaffoldMessenger.of(context)
@@ -325,7 +338,6 @@ class _DraftItemState extends State<DraftItem> {
                                 widget.data, widget.index, widget.uid);
                           });
                     }),
-              
               ],
             )),
       ),

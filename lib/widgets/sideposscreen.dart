@@ -77,6 +77,7 @@ class _SidePosScreenState extends State<SidePosScreen>
     bool ispotriat = orientation == Orientation.portrait;
     var qrdata = Provider.of<Order>(context).qrdata;
       var cart = Provider.of<Cart>(context,listen: true);
+      var order = Provider.of<Order>(context,listen: true);
     return SingleChildScrollView(
       reverse: true,
       child: Padding(
@@ -160,6 +161,10 @@ class _SidePosScreenState extends State<SidePosScreen>
             SizedBox(
               height: 5.h,
             ),
+          if(order.pOSSalesMasterID!=null)   Center(
+              child: Text("Order NO. ${order.pOSSalesMasterID}",style:titleStyle),
+             ),
+            
             Container(
                 width: 350.w,
                 padding: EdgeInsets.symmetric(horizontal: 5.w, vertical: 5.h),

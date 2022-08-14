@@ -399,6 +399,7 @@ class _PaymentScreenState extends State<PaymentScreen> {
                                             ElevatedButton(
                                                 child: const Text("OK"),
                                                 onPressed: () {
+                                                     print("ppsaslse master ud"+order.pOSSalesMasterID.toString());
                                                   if (order.pOSSalesMasterID ==
                                                       null) {
                                                         print("yo hai qr data ko id "+ qrdata.cusid.toString());
@@ -542,8 +543,11 @@ class _PaymentScreenState extends State<PaymentScreen> {
                                           ElevatedButton(
                                               child: const Text("OK"),
                                               onPressed: () async {
-                                                Provider.of<Order>(context,
-                                                        listen: false)
+                                                var order= Provider.of<Order>(context,
+                                                        listen: false);
+                                                        print("ppsaslse master ud"+order.pOSSalesMasterID.toString());
+                                             if (order.pOSSalesMasterID ==
+                                                      null) {    order
                                                     .addtodb(
                                                         qrdata.cusid,
                                                         cartt.items.values
@@ -563,6 +567,22 @@ class _PaymentScreenState extends State<PaymentScreen> {
                                                         p.items.values.toList(),
                                                         1,
                                                         1);
+                                                        }else{
+                                                           order.edittodb(
+                                                      cartt.remarkscontroller
+                                                          .text,
+                                                      cartt.items.values
+                                                          .toList(),
+                                                      widget.amount,
+                                                      gt,
+                                                      widget.discounttype,
+                                                      cart.disData,
+                                       p.items.values.toList(),1,
+                                                                                               widget.uid,
+                                                    );
+                                                            await MyDatabase.instance.updatePOsSalesMasterStatus(order.pOSSalesMasterID!);
+
+                                                        }
                                                 await printfunction();
                                                 cartt.clear();
                                                 Provider.of<PayA>(context,

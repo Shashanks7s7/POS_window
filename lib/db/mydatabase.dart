@@ -32,7 +32,7 @@ class MyDatabase {
     //  final path = d.join(dbPath, filepath);
     // return await openDatabase(path, version: 1, onCreate: _createDB,);
     sqfliteFfiInit();
-
+//inMemoryDatabasePath
 
   var databaseFactory = databaseFactoryFfi;
   String path = '${await databaseFactory.getDatabasesPath()}\\myDB.db';
@@ -418,6 +418,12 @@ class MyDatabase {
       double discount,)async{
     final db = await instance.database;
     return db!.update(tablePOSSalesMaster, {'remarks':remarks,'netAmount':netamount,'grandTotal':grandtotal, 'discountType':discounttype,'discount':discount},
+        where: '${POSSalesMasterField.pOSSalesMasterID} = ?',
+        whereArgs: [id]);
+  }
+  Future<int> updatePOsSalesMasterStatus(int id)async{
+    final db = await instance.database;
+    return db!.update(tablePOSSalesMaster, {"salesStatus":1},
         where: '${POSSalesMasterField.pOSSalesMasterID} = ?',
         whereArgs: [id]);
   }

@@ -62,7 +62,7 @@ class _DraftScreenState extends State<DraftScreen> {
                     ListTile(
                         leading: IconButton(
                             onPressed: () {
-                              Navigator.of(context).pop();
+                              Navigator.of(context).pushNamed("/");
                             },
                             icon: Icon(Icons.arrow_back, size: 36.w)),
                         title: Center(
